@@ -330,7 +330,9 @@ public class PomUtil {
             return null;
         }
         try {
-            templateRootContainer.refreshLocal(IResource.DEPTH_INFINITE, null);
+            if (!templateRootContainer.isSynchronized(IResource.DEPTH_INFINITE)) {
+                templateRootContainer.refreshLocal(IResource.DEPTH_INFINITE, null);
+            }
         } catch (CoreException e) {
             //
         }

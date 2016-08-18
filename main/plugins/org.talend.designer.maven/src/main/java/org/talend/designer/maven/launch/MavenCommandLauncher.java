@@ -149,15 +149,17 @@ public class MavenCommandLauncher {
 
             String launchSafeGoalName = goal.replace(':', '-');
 
-            ILaunchConfigurationWorkingCopy workingCopy = launchConfigurationType.newInstance(
-                    null, //
-                    NLS.bind(org.eclipse.m2e.internal.launch.Messages.ExecutePomAction_executing, launchSafeGoalName, basedir
-                            .getLocation().toString().replace('/', '-')));
+            ILaunchConfigurationWorkingCopy workingCopy = launchConfigurationType.newInstance(null, //
+                    NLS.bind(org.eclipse.m2e.internal.launch.Messages.ExecutePomAction_executing, launchSafeGoalName,
+                            basedir.getLocation().toString().replace('/', '-')));
             workingCopy.setAttribute(MavenLaunchConstants.ATTR_POM_DIR, basedir.getLocation().toOSString());
             workingCopy.setAttribute(MavenLaunchConstants.ATTR_GOALS, goal);
             workingCopy.setAttribute(ILaunchManager.ATTR_PRIVATE, true);
             workingCopy.setAttribute(RefreshUtil.ATTR_REFRESH_SCOPE, RefreshUtil.MEMENTO_SELECTED_PROJECT);
             workingCopy.setAttribute(RefreshUtil.ATTR_REFRESH_RECURSIVE, true);
+            if (CommonsPlugin.isHeadless()) {
+                workingCopy.setAttribute(MavenLaunchConstants.ATTR_OFFLINE, true);
+            }
 
             // seems no need refresh project, so won't set it.
             // workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME,
@@ -192,9 +194,14 @@ public class MavenCommandLauncher {
             if (StringUtils.isNotEmpty(programArgs)) {
                 workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, programArgs);
             }
+            IPath generatedLog = basedir.getProject().getLocation().append("lastGenerated.log"); //$NON-NLS-1$
+            workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS,
+                    "-l " + generatedLog.toPortableString() + " " //$NON-NLS-1$ //$NON-NLS-2$
+                            + workingCopy.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, "")); //$NON-NLS-1$
 
             // TODO when launching Maven with debugger consider to add the following property
-            // -Dmaven.surefire.debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -Xnoagent -Djava.compiler=NONE"
+            // -Dmaven.surefire.debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -Xnoagent
+            // -Djava.compiler=NONE"
 
             return workingCopy;
         } catch (CoreException ex) {
@@ -234,8 +241,8 @@ public class MavenCommandLauncher {
 
     protected ILaunchConfiguration createLaunchConfiguration() {
         if (GlobalServiceRegister.getDefault().isServiceRegistered(IRunProcessService.class)) {
-            IRunProcessService processService = (IRunProcessService) GlobalServiceRegister.getDefault().getService(
-                    IRunProcessService.class);
+            IRunProcessService processService = (IRunProcessService) GlobalServiceRegister.getDefault()
+                    .getService(IRunProcessService.class);
             ITalendProcessJavaProject talendProcessJavaProject = processService.getTalendProcessJavaProject();
             if (talendProcessJavaProject != null) {
                 IProject project = talendProcessJavaProject.getProject();

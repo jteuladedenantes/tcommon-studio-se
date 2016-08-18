@@ -174,7 +174,9 @@ public class CreateMavenBundleTemplatePom extends CreateMaven {
 
         afterCreate(monitor);
 
-        curPomFile.getParent().refreshLocal(IResource.DEPTH_ONE, monitor);
+        if (!curPomFile.getParent().isSynchronized(IResource.DEPTH_ONE)) {
+            curPomFile.getParent().refreshLocal(IResource.DEPTH_ONE, monitor);
+        }
 
     }
 

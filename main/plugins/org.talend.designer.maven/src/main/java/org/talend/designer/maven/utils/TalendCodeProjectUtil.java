@@ -50,7 +50,9 @@ public final class TalendCodeProjectUtil {
         if (!codeProject.isOpen()) {
             codeProject.open(IProject.BACKGROUND_REFRESH, monitor);
         } else {
-            codeProject.refreshLocal(IProject.DEPTH_INFINITE, monitor);
+            if (!codeProject.isSynchronized(IProject.DEPTH_INFINITE)) {
+                codeProject.refreshLocal(IProject.DEPTH_INFINITE, monitor);
+            }
         }
         return codeProject;
     }

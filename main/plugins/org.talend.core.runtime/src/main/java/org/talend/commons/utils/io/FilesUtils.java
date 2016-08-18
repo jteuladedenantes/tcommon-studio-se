@@ -215,8 +215,8 @@ public class FilesUtils {
                         copyFolder(current, newFolder, targetBaseFolder, emptyTargetBeforeCopy, sourceFolderFilter,
                                 sourceFileFilter, copyFolder, synchronize);
                     } else {
-                        copyFolder(current, target, targetBaseFolder, emptyTargetBeforeCopy, sourceFolderFilter,
-                                sourceFileFilter, copyFolder, synchronize);
+                        copyFolder(current, target, targetBaseFolder, emptyTargetBeforeCopy, sourceFolderFilter, sourceFileFilter,
+                                copyFolder, synchronize);
                     }
                 }
             }
@@ -339,7 +339,8 @@ public class FilesUtils {
         return getFilesFromFolder(bundle, path, extension, true, false);
     }
 
-    public static List<URL> getFilesFromFolder(Bundle bundle, String path, String extension, boolean absoluteURL, boolean nested) {
+    public static List<URL> getFilesFromFolder(Bundle bundle, String path, String extension, boolean absoluteURL,
+            boolean nested) {
         List<URL> toReturn = new ArrayList<URL>();
 
         Enumeration entryPaths = bundle.getEntryPaths(path);
@@ -484,7 +485,7 @@ public class FilesUtils {
     }
 
     public static List<File> getDllFilesFromFolder(File file, String fileName) throws MalformedURLException {
-        return getFilesFromFolderByName(file, fileName, new String[] { ".dll" }, null, true); //$NON-NLS-1$ 
+        return getFilesFromFolderByName(file, fileName, new String[] { ".dll" }, null, true); //$NON-NLS-1$
     }
 
     public static FileFilter getExcludeSystemFilesFilter() {
@@ -492,7 +493,7 @@ public class FilesUtils {
 
             @Override
             public boolean accept(File pathname) {
-                return !isSVNFolder(pathname) && !pathname.toString().endsWith(".dummy"); //$NON-NLS-1$ 
+                return !isSVNFolder(pathname) && !pathname.toString().endsWith(".dummy"); //$NON-NLS-1$
             }
 
         };
@@ -1142,8 +1143,8 @@ public class FilesUtils {
         return filePath;
     }
 
-    public static BufferedReader isFilePathAvailable(String fileStr, FileConnection connection) throws IOException,
-            UnsupportedEncodingException, FileNotFoundException {
+    public static BufferedReader isFilePathAvailable(String fileStr, FileConnection connection)
+            throws IOException, UnsupportedEncodingException, FileNotFoundException {
         BufferedReader in;
         File file = new File(fileStr);
         Charset guessedCharset = CharsetToolkit.guessEncoding(file, 4096);
@@ -1185,7 +1186,9 @@ public class FilesUtils {
     public static void removeExistedResources(IProgressMonitor monitor, IResource currentResources, boolean ignoreFileNameCase,
             boolean overwrite) throws Exception {
         final IContainer parent = currentResources.getParent();
-        parent.refreshLocal(IResource.DEPTH_ONE, monitor);
+        if (!parent.isSynchronized(IResource.DEPTH_ONE)) {
+            parent.refreshLocal(IResource.DEPTH_ONE, monitor);
+        }
 
         List<IResource> existedSameFiles = getExistedResources(currentResources, ignoreFileNameCase);
 
