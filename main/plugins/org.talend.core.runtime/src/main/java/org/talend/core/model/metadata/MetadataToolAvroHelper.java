@@ -31,6 +31,8 @@ import org.talend.core.model.metadata.types.JavaTypesManager;
 import org.talend.core.utils.TalendQuoteUtils;
 import org.talend.cwm.helper.TaggedValueHelper;
 import org.talend.daikon.avro.AvroUtils;
+import org.talend.daikon.avro.SchemaConstants;
+
 import orgomg.cwm.objectmodel.core.Expression;
 import orgomg.cwm.objectmodel.core.TaggedValue;
 
@@ -520,8 +522,10 @@ public final class MetadataToolAvroHelper {
             col.setTalendType(JavaTypesManager.SHORT.getId());
         } else if (AvroUtils.isSameType(nonnullable, AvroUtils._string())) {
             col.setTalendType(JavaTypesManager.STRING.getId());
+        } else if (nonnullable.getProp(SchemaConstants.JAVA_CLASS_FLAG) != null) {
+            col.setTalendType(JavaTypesManager.OBJECT.getId());
         }
-        // FIXME missing List and Object here
+        // FIXME missing List
 
         // TODO setSourceType from the field Schema type.
         col.setNullable(AvroUtils.isNullable(in));
